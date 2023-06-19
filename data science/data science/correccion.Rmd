@@ -1,0 +1,140 @@
+---
+title: "Correcion Prueba"
+author: "javier saavedra"
+date: "9/28/2022"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## ejercicio 1
+
+## a)
+
+$$
+cov(x_t,x_s)=\left(\sum_{i=1}^{n}a(s_i)f(s_i,\sum_{j=1}^{n}a(s_j)f(s_j))\right)
+$$
+
+$$
+\mathbb{E}
+\left[
+\left(
+\sum_{i=1}^{n}a(s_i)f(s_i)-\mathbb{E}
+\left[\sum_{i=1}^{n}a(s_i)f(s_i)
+\right]
+\right)
+\left(
+\sum_{j=1}^{n}a(s_j)f(s_j))-\mathbb{E}
+\left[
+\sum_{j=1}^{n}a(s_j)f(s_j)
+\right]
+\right)
+\right]
+$$
+
+$$
+\mathbb{E} 
+\left[
+\left(
+\sum_{i=1}^{n}a(s_i)f(s_i)-\sum_{i=1}^{n}f(s_i)\mathbb{E}
+\left[
+a(s_i)
+\right]
+\right)
+\left(
+\sum_{j=1}^{n}a(s_j)f(s_j))-\sum_{j=1}^{n}f(s_j)\mathbb{E}
+\left[
+a(s_j)
+\right]
+\right)
+\right]
+$$
+$$
+\sum_{j=1}^{n}\sum_{i=1}^{n}f(s_j)f(s_i)*cov(a(s_i),a(s_j))
+$$
+
+
+## Ejercicio 2
+
+nugget:
+$$
+\lim_{h \to 0}\alpha+\beta(1-\exp(-3h/\theta))
+$$
+
+$$
+\lim_{h \to 0}\alpha
+$$
+
+$$
+\lim_{h \to 0}\beta(1-\exp(-3h/\theta))=0
+$$
+umbral:
+$$
+\lim_{h \to 0}\alpha+\beta(1-\exp(-3h/\theta))=\alpha+\beta
+$$
+
+umbral parcial:
+
+umbral parcial = $\alpha+\beta-\alpha=\beta$
+
+```{r}
+
+```
+
+
+## Ejercicio 3
+
+## a) 
+$\mathbb{E}\left[\epsilon(s)\right]=0$
+
+$K_i=\rho(s_i,s_0)$
+
+entonces:
+$$
+\hat{X}(s_0)=m(s)'\beta + K'\left(\Sigma\right)^{-1}(Z-m(s)'\beta)
+$$
+
+$$
+\to \mathbb{E}[X_s]=m(s)'\beta
+$$
+## b)
+Estimamos $\beta$ y $\Sigma$ mediante maxima verosimilitud
+
+$$
+log(\mathcal{L})=\frac{-nlog(2\pi\Sigma)}{2}-(Z-M'\beta)\Sigma^{-1}(Z-M'\beta)'
+$$
+despejamos la log-likelihood para $\beta$ y $\Sigma$:
+
+$$
+\hat\beta=(M'\Sigma^{-1}M)^{-1}(Z\Sigma^{-1}M)
+$$
+$$
+\hat\Sigma=\frac{n}{2(Z-M'\beta)(Z-M'\beta)'}
+$$
+esto se resuelve con metodos de optimizacion como BFGS.
+
+## Ejercicio 4
+
+## Ejercicio 5
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

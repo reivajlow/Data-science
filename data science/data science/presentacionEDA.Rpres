@@ -1,0 +1,155 @@
+Presentacion EDA Datos acelerometro de 3 dimensiones en aspa de motor
+========================================================
+author: Javier Saavedra
+date: 9/29/2022
+autosize: true
+
+Contexto
+========================================================
+La base de datos consiste en valores recopilados a traves de un acelerometro montado en un aspa propulsada por un motor. respecto al aspa tenemos 3 variantes, las cuales se diferencian por pesos dispuestos de maneras distintas para generar 3 escenarios de vibraciones distintas para analizar, estos datos transcurren dependiendo de las revoluciones de giro del motor( RPM).
+
+- Rojo: Configuración normal dos piezas de peso colocadas en palas vecinas
+- Azul: Configuración perpendicular dos piezas de peso colocadas sobre palas que forman un ángulo de 90 grados
+- Verde: Configuración opuesta dos piezas de peso colocadas en palas opuestas
+
+¿Que mide un acelerometro?
+```{r include=FALSE}
+library(readr)
+accelerometer <- read_csv("Base_2_Accelerometer/accelerometer.csv",
+                          col_types = cols(wconfid = col_factor(levels = c("1","2", "3")),
+                          x = col_number(), y = col_number(),
+                          z = col_number()))
+
+attach(accelerometer)
+na.omit(accelerometer)
+# no hay valores NA
+
+#reconocer factores y valores
+accelerometer$wconfid<- factor(wconfid,labels =  c("rojo","azul","verde"))
+
+
+library(gganimate)
+library(babynames)
+library(hrbrthemes)
+library(viridis)
+library(gifski)
+library(dplyr)
+#separamos en bases segun color
+
+rojo  <- accelerometer[wconfid==1,]
+azul  <- accelerometer[wconfid==2,]
+verde <- accelerometer[wconfid==3,]
+```
+
+¿y los datos?
+========================================================
+
+```{r echo=FALSE, fig.height=7, fig.width=8, message=FALSE, warning=FALSE}
+library(ggplot2)
+animaterojo <- data.frame(eje=c(rep("x",51000),rep("y",51000),rep("z",51000)),
+                        value=c(rojo$x,rojo$y,rojo$z),
+                        revoluciones=c(rojo$pctid,rojo$pctid,rojo$pctid))
+
+animateazul <- data.frame(eje=c(rep("x",51000),rep("y",51000),rep("z",51000)),
+                        value=c(azul$x,azul$y,azul$z),
+                        revoluciones=c(azul$pctid,azul$pctid,azul$pctid))
+
+animateverde <- data.frame(eje=c(rep("x",51000),rep("y",51000),rep("z",51000)),
+                        value=c(verde$x,verde$y,verde$z),
+                        revoluciones=c(verde$pctid,verde$pctid,verde$pctid))
+
+ggplot(data=animaterojo, aes(x=revoluciones,y=value, group=eje, color=eje)) +
+    geom_point( alpha=0.4) +
+    facet_wrap(~eje) +
+    ggtitle("Dispersion de datos por eje para caso rojo")
+```
+¿y los datos?
+========================================================
+```{r echo=FALSE, fig.height=7, fig.width=8, message=FALSE, warning=FALSE}
+ggplot(data=animateazul, aes(x=revoluciones,y=value, group=eje, color=eje)) +
+    geom_point( alpha=0.4) +
+    facet_wrap(~eje) +
+    ggtitle("Dispersion de datos por eje para caso azul")
+```
+¿y los datos?
+========================================================
+```{r echo=FALSE, fig.height=7, fig.width=8, message=FALSE, warning=FALSE}
+ggplot(data=animateverde, aes(x=revoluciones,y=value, group=eje, color=eje)) +
+    geom_point( alpha=0.4) +
+    facet_wrap(~eje) +
+    ggtitle("Dispersion de datos por eje para caso verde")
+```
+
+
+¿Como se comportan?
+========================================================
+
+```{r echo=FALSE}
+animaterojo <- data.frame(eje=c(rep("x",51000),rep("y",51000),rep("z",51000)),
+                        value=c(rojo$x,rojo$y,rojo$z),
+                        revoluciones=c(rojo$pctid,rojo$pctid,rojo$pctid))
+
+animateazul <- data.frame(eje=c(rep("x",51000),rep("y",51000),rep("z",51000)),
+                        value=c(azul$x,azul$y,azul$z),
+                        revoluciones=c(azul$pctid,azul$pctid,azul$pctid))
+
+animateverde <- data.frame(eje=c(rep("x",51000),rep("y",51000),rep("z",51000)),
+                        value=c(verde$x,verde$y,verde$z),
+                        revoluciones=c(verde$pctid,verde$pctid,verde$pctid))
+
+myplot <- animaterojo %>%
+  ggplot( aes(x=revoluciones, y=value, group=eje, color=eje)) +
+  geom_line() +
+  geom_point() +
+  ylim(-3,3)+
+  scale_color_viridis(discrete = TRUE) +
+  ggtitle("vibraciones en aspa roja") +
+  theme_ipsum() +
+  ylab("aceleracion")+
+  transition_reveal(pctid)
+
+animate(myplot, duration = 5, fps = 20, width = 400, height = 400,
+        renderer = gifski_renderer())
+
+```
+¿Como se comportan?
+========================================================
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+myplot <- animateazul %>%
+  ggplot( aes(x=revoluciones, y=value, group=eje, color=eje)) +
+  geom_line() +
+  geom_point() +
+  ylim(-3,3)+
+  scale_color_viridis(discrete = TRUE) +
+  ggtitle("vibraciones en aspa azul") +
+  theme_ipsum() +
+  ylab("aceleracion")+
+  transition_reveal(pctid)
+
+animate(myplot, duration = 5, fps = 20, width = 400, height = 400,
+        renderer = gifski_renderer())
+```
+¿Como se comportan?
+========================================================
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+myplot <- animateverde %>%
+  ggplot( aes(x=revoluciones, y=value, group=eje, color=eje)) +
+  geom_line() +
+  geom_point() +
+  ylim(-3,3)+
+  scale_color_viridis(discrete = TRUE) +
+  ggtitle("vibraciones en aspa verde") +
+  theme_ipsum() +
+  ylab("aceleracion")+
+  transition_reveal(pctid)
+
+animate(myplot, duration = 5, fps = 20, width = 400, height = 400,
+        renderer = gifski_renderer())
+```
+
+
+
+
+
+
+

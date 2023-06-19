@@ -1,0 +1,55 @@
+---
+title: "taller"
+author: "javier saavedra"
+date: "9/9/2022"
+output: pdf_document
+---
+
+```{r}
+library(tidyr)
+library(tidyverse)
+library(stringr)
+auto_mpg <- read.delim("C:/Users/javoe/Downloads/auto_mpg.txt")
+auto_mpg$horsepower[auto_mpg$]
+
+mean(drop_na(as.numeric(auto_mpg$horsepower[auto_mpg$displacement=="?"])))
+
+str_split_fixed(auto_mpg$car_name,pattern = " ",n = 2) ->marcas
+
+marcas
+auto_mpg$marca <- marcas[,1] 
+
+table(auto_mpg$marca,auto_mpg$origin)
+
+attach(auto_mpg)
+
+as.factor(origin)
+factor(origin,labels = c("usa","europe","japan"))-> auto_mpg$origin
+
+
+
+library(tidyverse)
+library(hrbrthemes)
+library(viridis)
+
+auto_mpg %>%
+  ggplot( aes(x=origin, y=mpg, fill=origin)) +
+    geom_boxplot() +
+    scale_fill_viridis(discrete = TRUE, alpha=0.6) +
+    geom_jitter(color="black", size=0.4, alpha=0.9) +
+    ggtitle("A boxplot mpg per origin") +
+    xlab("")
+
+
+auto_mpgusa <- auto_mpg[auto_mpg$origin=="usa",]
+auto_mpgeurope <- auto_mpg[auto_mpg$origin=="europe",]
+auto_mpgjapan <- auto_mpg[auto_mpg$origin=="japan",]
+
+
+plot(auto_mpg)
+                   
+library(GGally)
+
+ggpairs(auto_mpg[,c(1:3,5:8)])                                      
+```
+

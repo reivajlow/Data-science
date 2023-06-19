@@ -1,0 +1,115 @@
+---
+title: "EDA"
+author: "javier saavedra"
+date: "9/29/2022"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r warning=FALSE, include=FALSE}
+library(readr)
+accelerometer <- read_csv("Base_2_Accelerometer/accelerometer.csv",
+                          col_types = cols(wconfid = col_factor(levels = c("1","2", "3")),
+                          x = col_number(), y = col_number(),
+                          z = col_number()))
+
+attach(accelerometer)
+na.omit(accelerometer)
+# no hay valores NA
+
+#reconocer factores y valores
+accelerometer$wconfid<- factor(wconfid,labels =  c("rojo","azul","verde"))
+
+
+#separamos en bases segun color
+
+rojo  <- accelerometer[wconfid==1,]
+azul  <- accelerometer[wconfid==2,]
+verde <- accelerometer[wconfid==3,]
+```
+
+En el presente informe realizaremos un analisis exploratorio a nuestra base de datos "accelerometer". Esta base de datos consiste en valores recopilados a traves de un acelerometro montado en un aspa propulsada por un motor, respecto al aspa tenemos 3 variantes, las cuales se diferencian por pesos dispuestos de maneras distintas para generar 3 escenarios de vibraciones distintas para analizar, estos datos transcurren dependiendo de las revoluciones de giro del motor( RPM).
+
+los casos a observar son los siguientes
+\begin{itemize}
+\item Rojo: Configuración normal dos piezas de peso colocadas en palas vecinas
+\item Azul: Configuración perpendicular dos piezas de peso colocadas sobre palas que forman un ángulo de 90 grados
+\item Verde: Configuración opuesta dos piezas de peso colocadas en palas opuestas
+\end{itemize}
+
+Un vistazo a los datos.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+minidata <- data.frame(rbind(rojo[c(1,25000,50000),],
+                             azul[c(1,25000,50000),],
+                             verde[c(1,25000,50000),]))
+colnames(minidata) = c("Aspa","RPM","X","Y","z")
+#tranformamos porcentaje de rpm a rpm
+minidata$RPM <- as.numeric(minidata$RPM)
+minidata$RPM <- minidata$RPM*19
+minidata
+```
+
+Como podemos imaginar, los valores corresponden a la tasa de cambio de la velocidad de giro en 3 ejes, estos valores nos ayudan a detectar las vibracion en el aspa y como estas varian al aumentar las rpm, es por esto que un analisis exploratorio no ayudara a detectar comportamientos, tendencias y estadisticas utiles para los fines del estudio correspondiente.
+\newpage
+
+## analisis de dispersion
+Aqui podemos observar la distribucion de los datos segun el aspa. se puede notar por la transparencia de los puntos donde hay mayor concentracion de puntos y la variacion por la distancia vertical entre los puntos
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+animaterojo <- data.frame(eje=c(rep("x",51000),rep("y",51000),rep("z",51000)),
+                        value=c(rojo$x,rojo$y,rojo$z),
+                        revoluciones=c(rojo$pctid,rojo$pctid,rojo$pctid))
+
+animateazul <- data.frame(eje=c(rep("x",51000),rep("y",51000),rep("z",51000)),
+                        value=c(azul$x,azul$y,azul$z),
+                        revoluciones=c(azul$pctid,azul$pctid,azul$pctid))
+
+animateverde <- data.frame(eje=c(rep("x",51000),rep("y",51000),rep("z",51000)),
+                        value=c(verde$x,verde$y,verde$z),
+                        revoluciones=c(verde$pctid,verde$pctid,verde$pctid))
+
+
+library(ggplot2)
+library(vtable)
+library(hrbrthemes)
+
+ggplot(data=animaterojo, aes(x=revoluciones,y=value, group=eje, color=eje)) +
+    geom_point( alpha=0.4) +
+    facet_wrap(~eje) +
+    ggtitle("Dispersion de datos por eje para caso rojo")
+ggplot(data=animateazul, aes(x=revoluciones,y=value, group=eje, color=eje)) +
+    geom_point( alpha=0.4) +
+    facet_wrap(~eje) +
+    ggtitle("Dispersion de datos por eje para caso azul")
+ggplot(data=animateverde, aes(x=revoluciones,y=value, group=eje, color=eje)) +
+    geom_point( alpha=0.4) +
+    facet_wrap(~eje) +
+    ggtitle("Dispersion de datos por eje para caso verde")
+
+```
+
+\newpage
+## medidas de tendencia central
+Ahora observamos algunas estadisticas de interes
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+st(accelerometer[,c(1,3,4,5)], group = 'wconfid', group.long = TRUE,
+   summ = c('notNA(x)','mean(x)','var(x)','min(x)',"max(x)"))
+
+covrojo  <- cov(rojo [,3:5])
+covazul  <- cov(azul [,3:5])
+covverde <- cov(verde[,3:5])
+
+```
+
+### ¿Que podemos decir de los datos?
+A simple vista notamos que el aspa de caso verde tiene la menor variabilidad de los 3 casos, por otro lado vemos que el minimo y maximo en los casos rojo y azul son identicos, esto no implica que tengan el mismo comportamienta, como vimos en los graficos anteriores, los datos del caso azul se encuentran mas concentrados en la media por lo cual las vibraciones serian menos significativas. Observamos que los datos de los ejes no covarian entre si.
+
+Sin embargo, el analisis nos causa muchas preguntas principalmente sobre informacion del motor para hacer una interpretacion de los datos, a su vez no sabemos en que eje y sentido gira el aspa, lo cual nos ayudaria a dar distinta importancia a los valores de cada eje.
+
+Como conclusion mencionamos la baja variabilidad de los datos del caso verde lo cual supondria un mejor comportamiento del aspa independiente del contexto en el que se estudie, considerando que estos datos fueron utilizados para predecir la duracion de vida de un motor, pensamos que el caso verde otorgaria la mayor vida al motor.
